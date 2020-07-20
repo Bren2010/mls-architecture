@@ -34,7 +34,7 @@ Discussion Venues
    This note is to be removed before publishing as an RFC.
 
    Source for this draft and an issue tracker can be found at
-   https://github.com/Bren2010/mls-architecture.
+   https://github.com/mlswg/mls-architecture.
 
 Status of This Memo
 
