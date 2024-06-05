@@ -5,14 +5,14 @@
 Network Working Group                                      B. Beurdouche
 Internet-Draft                                           Inria & Mozilla
 Intended status: Informational                               E. Rescorla
-Expires: 7 September 2024                                        Mozilla
+Expires: 7 December 2024                                         Mozilla
                                                                 E. Omara
                                                                         
                                                                S. Inguva
                                                                         
                                                                 A. Duric
                                                                     Wire
-                                                            6 March 2024
+                                                             5 June 2024
 
 
             The Messaging Layer Security (MLS) Architecture
@@ -68,7 +68,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 7 September 2024.
+   This Internet-Draft will expire on 7 December 2024.
 
 Copyright Notice
 
@@ -104,6 +104,7 @@ Table of Contents
      5.2.  Delivery of Messages
        5.2.1.  Strongly Consistent
        5.2.2.  Eventually Consistent
+       5.2.3.  Welcome Messages
    6.  Functional Requirements
      6.1.  Membership Changes
      6.2.  Parallel Groups
@@ -159,13 +160,12 @@ Table of Contents
    changes can be managed in GitHub, but any substantive change should
    be discussed on the MLS mailing list.
 
-   End-to-end security is a used in the vast majority of instant
-   messaging systems, and also deployed in systems for other purposes
-   such as calling and conferencing.  In this context, "end-to-end"
-   captures the notion that users of the system enjoy some level of
-   security -- with the precise level depending on the system design --
-   even in the face of malicious actions by the operator of the
-   messaging system.
+   End-to-end security is used in the vast majority of instant messaging
+   systems, and also deployed in systems for other purposes such as
+   calling and conferencing.  In this context, "end-to-end" captures the
+   notion that users of the system enjoy some level of security -- with
+   the precise level depending on the system design -- even in the face
+   of malicious actions by the operator of the messaging system.
 
    Messaging Layer Security (MLS) specifies an architecture (this
    document) and a protocol [I-D.ietf-mls-protocol] for providing end-
@@ -604,7 +604,7 @@ Welcome (Charlie) ----------------------------------------->     | Step 4
    "last resort" KeyPackage will be used.
 
       *RECOMMENDATION:* Ensure that "last resort" KeyPackages don't get
-      used by provisionning enough standard KeyPackages.
+      used by provisioning enough standard KeyPackages.
 
       *RECOMMENDATION:* Rotate "last resort" KeyPackages as soon as
       possible after being used or if they have been stored for a
@@ -650,7 +650,7 @@ Welcome (Charlie) ----------------------------------------->     | Step 4
 
    *  Consistent and Partition-tolerant, or Strongly Consistent, systems
       can provide a globally consistent view of data but has the
-      inconvenient of clients needing to handle rejected messages;
+      inconvenience of clients needing to handle rejected messages;
 
    *  Available and Partition-tolerant, or Eventually Consistent,
       systems continue working despite network issues but may return
@@ -658,7 +658,7 @@ Welcome (Charlie) ----------------------------------------->     | Step 4
 
    Strategies for sequencing messages in strongly and eventually
    consistent systems are described in the next two subsections.  Most
-   Delivery Service will use the Strongly Consistent paradigm but this
+   Delivery Services will use the Strongly Consistent paradigm but this
    remains a choice that can be handled in coordination with the client
    and advertized in the KeyPackages.
 
@@ -669,7 +669,7 @@ Welcome (Charlie) ----------------------------------------->     | Step 4
    does not provide complete protection against partitioning.  A DS can
    cause a partition in the group by partitioning key exchange messages;
    this can be detected only by out-of-band comparison (e.g., confirming
-   that all clients have the same epoch_authenticator value`).  A
+   that all clients have the same epoch_authenticator value).  A
    mechanism for more robust protections is discussed in
    [I-D.ietf-mls-extensions].
 
@@ -736,6 +736,39 @@ Welcome (Charlie) ----------------------------------------->     | Step 4
    If the Commit references an unknown proposal, group members may need
    to solicit the Delivery Service or other group members individually
    for the contents of the proposal.
+
+5.2.3.  Welcome Messages
+
+   Whenever a commit adds new members to a group, MLS requires the
+   committer to send a Welcome message to the new members.  Applications
+   should ensure that Welcome messages are coupled with the tie-breaking
+   logic for commits, discussed in Section 5.2.1 and Section 5.2.2.
+   That is, when multiple commits are sent for the same epoch,
+   applications need to ensure that only Welcome messages corresponding
+   to the commit that "succeeded" are processed by new members.
+
+   This is particularly important when groups are being reinitialized.
+   When a group is reinitialized, it is restarted with a different
+   protocol version and/or ciphersuite but identical membership.
+   Whenever an authorized member sends and commits a ReInit proposal,
+   this immediately freezes the existing group and triggers the creation
+   of a new group with a new group_id.
+
+   Ideally, the new group would be created by the same member that
+   committed the ReInit proposal (including sending Welcome messages for
+   the new group to all of the previous group's members).  However this
+   operation is not always atomic, so it's possible for a member to go
+   offline after committing a ReInit proposal but before creating the
+   new group.  When this happens, it's necessary for another member to
+   continue the reinitialization by creating the new group and sending
+   out Welcome messages.
+
+   This has the potential to create a race condition, where multiple
+   members try to continue the reinitialization at the same time, and
+   members receive multiple Welcome messages for each attempt at
+   reinitializing the same group.  Ensuring that all members agree on
+   which reinitialization attempt is "correct" is key to prevent this
+   from causing forks.
 
 6.  Functional Requirements
 
@@ -850,8 +883,8 @@ Welcome (Charlie) ----------------------------------------->     | Step 4
 6.4.  Access Control
 
    Because all clients within a group (members) have access to the
-   shared cryptographic material, the MLS protocol allows each member of
-   the messaging group to perform operations.  However, every service/
+   shared cryptographic material, MLS protocol allows each member of the
+   messaging group to perform operations, However, every service/
    infrastructure has control over policies applied to its own clients.
    Applications managing MLS clients can be configured to allow for
    specific group operations.  On the one hand, an application could
@@ -859,19 +892,21 @@ Welcome (Charlie) ----------------------------------------->     | Step 4
    add and remove operations.  On the other hand, in many settings such
    as open discussion forums, joining can be allowed for anyone.
 
-   The MLS protocol can, in certain modes, exchange unencrypted group
-   operation messages.  This flexibility is to allow services to perform
-   access control tasks on behalf of the group.
-
-   While the Application messages will always be encrypted, having the
-   handshake messages in plaintext has privacy consequences as someone
-   could collect the signatures on the handshake messages and use them
-   for tracking.
-
-      *RECOMMENDATION:* Prefer using encrypted group operation messages
-      unless a Delivery Service explicitly needs plaintext handshake
-      messages to provide additional features.  In this case, ensure
-      that transport-layer encryption is always used.
+   While MLS Application messages are always encrypted, MLS handshake
+   messages can be sent either encrypted (in an MLS PrivateMessage) or
+   unencrypted (in an MLS PublicMessage).  Applications may be designed
+   such that intermediaries need to see handshake messages, for example
+   to enforce policy on which commits are allowed, or to provide MLS
+   ratchet tree data in a central location.  If handshake messages are
+   unencrypted, it is especially important that they be sent over a
+   channel with strong transport encryption (see Section 8) in order to
+   prevent external attackers from monitoring the status of the group.
+   Applications that use unencrypted handshake messages may take
+   additional steps to reduce the amount of metadata that is exposed to
+   the intermediary.  Everything else being equal, using encrypted
+   handshake messages provides stronger privacy properties than using
+   unencrypted handshake messages, as it prevents intermediaries from
+   learning about the structure of the group.
 
    If handshake messages are encrypted, any access control policies must
    be applied at the client, so the application must ensure that the
@@ -1077,8 +1112,8 @@ Welcome (Charlie) ----------------------------------------->     | Step 4
          the ability to observe and maintain a copy of the public group
          state.  In particular, this is useful for clients that do not
          have the ability to send the full public state in a Welcome
-         message when inviting auser or for client that need to recover
-         from a loss of their state.  Such public state can contain
+         message when inviting a user, or for a client that needs to
+         recover from losing their state.  Such public state can contain
          privacy sensitive information such as group members'
          credentials and related public keys, hence services need to be
          carefully evaluate the privacy impact of storing this data on
@@ -2069,8 +2104,8 @@ Welcome (Charlie) ----------------------------------------->     | Step 4
    [ACCKKMPPWY19]
               Alwen, J., Capretto, M., Cueto, M., Kamath, C., Klein, K.,
               Markov, I., Pascual-Perez, G., Pietrzak, K., Walter, M.,
-              and M. Yeo, "Security Analysis and Improvements for the
-              IETF MLS Standard for Group Messaging", 2019,
+              and M. Yeo, "Keep the Dirt: Tainted TreeKEM, Adaptively
+              and Actively Secure Continuous Group Key Agreement", 2019,
               <https://eprint.iacr.org/2019/1489>.
 
    [ACDT19]   Alwen, J., Coretti, S., Dodis, Y., and Y. Tselekounis,
@@ -2098,8 +2133,7 @@ Welcome (Charlie) ----------------------------------------->     | Step 4
    [BBN19]    Bhargavan, K., Beurdouche, B., and P. Naldurg, "Formal
               Models and Verified Protocols for Group Messaging: Attacks
               and Proofs for IETF MLS", 2019,
-              <https://hal.laas.fr/INRIA/hal-02425229v1/file/mls-
-              treekem.pdf>.
+              <https://inria.hal.science/hal-02425229/document>.
 
    [BBR18]    Bhargavan, K., Barnes, R., and E. Rescorla, "TreeKEM:
               Asynchronous Decentralized Key Management for Large
@@ -2131,9 +2165,9 @@ Welcome (Charlie) ----------------------------------------->     | Step 4
    [I-D.ietf-mls-extensions]
               Robert, R., "The Messaging Layer Security (MLS)
               Extensions", Work in Progress, Internet-Draft, draft-ietf-
-              mls-extensions-03, 23 October 2023,
+              mls-extensions-04, 24 April 2024,
               <https://datatracker.ietf.org/doc/html/draft-ietf-mls-
-              extensions-03>.
+              extensions-04>.
 
    [I-D.ietf-mls-federation]
               Omara, E. and R. Robert, "The Messaging Layer Security
