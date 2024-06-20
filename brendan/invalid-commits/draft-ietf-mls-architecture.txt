@@ -797,14 +797,14 @@ Welcome (Charlie) ----------------------------------------->     | Step 4
    asynchronous protocol.  Users would ideally be able to send a Commit,
    quickly see the Commit sequenced by the Delivery Service, and then
    apply it to their group state.  As part of applying the Commit, many
-   asynchronous encryption keys (some or all of which may be
-   compromised) are rotated, restoring the user to a secure state.
-   Blocking the acceptance of a Commit on a consensus vote risks forcing
-   the user to stay in a compromised state for a prolonged period of
-   time.  Trying to speed up the consensus vote with a timeout, or by
-   reducing the number of favorable votes a Commit needs to receive,
-   immediately reintroduces the risk of an undetected invalid commit
-   breaking the group.
+   asymmetric encryption keys (some or all of which may be compromised)
+   are rotated, restoring the user to a secure state.  Blocking the
+   acceptance of a Commit on a consensus vote risks forcing the user to
+   stay in a compromised state for a prolonged period of time.  Trying
+   to speed up the consensus vote with a timeout, or by reducing the
+   number of favorable votes a Commit needs to receive, immediately
+   reintroduces the risk of an undetected invalid commit breaking the
+   group.
 
    Alternatively, the DS might assume that whichever Commit arrives
    first is the one that should succeed.  In the event that a Commit

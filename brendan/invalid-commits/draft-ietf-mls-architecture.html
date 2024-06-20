@@ -2249,7 +2249,7 @@ before it is applied. This would hamper many of the security properties of MLS,
 which is otherwise a completely asynchronous protocol. Users would ideally be
 able to send a Commit, quickly see the Commit sequenced by the Delivery Service,
 and then apply it to their group state. As part of applying the Commit, many
-asynchronous encryption keys (some or all of which may be compromised) are
+asymmetric encryption keys (some or all of which may be compromised) are
 rotated, restoring the user to a secure state. Blocking the acceptance of a
 Commit on a consensus vote risks forcing the user to stay in a compromised state
 for a prolonged period of time. Trying to speed up the consensus vote with a
