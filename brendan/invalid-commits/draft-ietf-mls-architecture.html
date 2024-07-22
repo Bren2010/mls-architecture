@@ -1049,7 +1049,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Beurdouche, et al.</td>
-<td class="center">Expires 7 January 2025</td>
+<td class="center">Expires 23 January 2025</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1062,12 +1062,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-ietf-mls-architecture-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2024-07-06" class="published">6 July 2024</time>
+<time datetime="2024-07-22" class="published">22 July 2024</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2025-01-07">7 January 2025</time></dd>
+<dd class="expires"><time datetime="2025-01-23">23 January 2025</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1143,7 +1143,7 @@ delivery service, or the authentication service.<a href="#section-abstract-3" cl
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 7 January 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 23 January 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1238,9 +1238,6 @@ delivery service, or the authentication service.<a href="#section-abstract-3" cl
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.3">
                 <p id="section-toc.1-1.5.2.3.1"><a href="#section-5.3" class="auto internal xref">5.3</a>.  <a href="#name-invalid-commits" class="internal xref">Invalid Commits</a></p>
 </li>
-              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.4">
-                <p id="section-toc.1-1.5.2.4.1"><a href="#section-5.4" class="auto internal xref">5.4</a>.  <a href="#name-access-control" class="internal xref">Access Control</a></p>
-</li>
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
@@ -1256,7 +1253,7 @@ delivery service, or the authentication service.<a href="#section-abstract-3" cl
                 <p id="section-toc.1-1.6.2.3.1"><a href="#section-6.3" class="auto internal xref">6.3</a>.  <a href="#name-asynchronous-usage" class="internal xref">Asynchronous Usage</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.4">
-                <p id="section-toc.1-1.6.2.4.1"><a href="#section-6.4" class="auto internal xref">6.4</a>.  <a href="#name-access-control-2" class="internal xref">Access Control</a></p>
+                <p id="section-toc.1-1.6.2.4.1"><a href="#section-6.4" class="auto internal xref">6.4</a>.  <a href="#name-access-control" class="internal xref">Access Control</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.5">
                 <p id="section-toc.1-1.6.2.5.1"><a href="#section-6.5" class="auto internal xref">6.5</a>.  <a href="#name-handling-authentication-fai" class="internal xref">Handling Authentication Failures</a></p>
@@ -2232,7 +2229,7 @@ prevent this from causing forks.<a href="#section-5.2.3-4" class="pilcrow">¶</a
         </h3>
 <p id="section-5.3-1">Situations can arise where a malicious or buggy client sends a Commit that is
 not accepted by all members of the group, and the DS is not able to detect this
-and reject the Commit.  For example, a buggy client might send a encrypted
+and reject the Commit.  For example, a buggy client might send an encrypted
 Commit with an invalid set of proposals, or a malicious client might send a
 malformed Commit of the form described in <span><a href="https://rfc-editor.org/rfc/rfc9420#section-16.12" class="relref">Section 16.12</a> of [<a href="#RFC9420" class="cite xref">RFC9420</a>]</span>.<a href="#section-5.3-1" class="pilcrow">¶</a></p>
 <p id="section-5.3-2">In situations where the DS is attempting to filter redundant Commits, the DS
@@ -2242,77 +2239,31 @@ example, the DS might think that the current epoch is now <code>n+1</code> and r
 commits from other epochs, while the members think the epoch is <code>n</code>, and as a
 result, the group is stuck -- no member can send a Commit that the DS will
 accept.<a href="#section-5.3-2" class="pilcrow">¶</a></p>
-<p id="section-5.3-3">One solution to this problem might be to require group consensus on a Commit,
-meaning all the members of a group would need to vote in favor of a Commit
-before it is applied. This would hamper many of the security properties of MLS,
-which is otherwise a completely asynchronous protocol. Users would ideally be
-able to send a Commit, quickly see the Commit sequenced by the Delivery Service,
-and then apply it to their group state. As part of applying the Commit, many
-asymmetric encryption keys (some or all of which may be compromised) are
-rotated, restoring the user to a secure state. Blocking the acceptance of a
-Commit on a consensus vote risks forcing the user to stay in a compromised state
-for a prolonged period of time. Trying to speed up the consensus vote with a
-timeout, or by reducing the number of favorable votes a Commit needs to receive,
-immediately reintroduces the risk of an undetected invalid commit breaking the
-group.<a href="#section-5.3-3" class="pilcrow">¶</a></p>
-<p id="section-5.3-4">Alternatively, the DS might assume that whichever Commit arrives first is the
-one that should succeed. In the event that a Commit can't be processed by some
-members of the group, those members will perform an external join to rejoin the
-group. Notably, this approach negates the PCS guarantees of MLS by requiring
-users to discard their secret state and rejoin a group with whatever state the
-DS provides to them. In particular, if any past epoch of a group is ever
-compromised, the DS can insert an unprocessable Commit message to trigger group
-members to rejoin using the compromised group state. This allows the DS to undo
-any PCS-achieving updates group members may have done since the compromise and
-revert to a compromised state.<a href="#section-5.3-4" class="pilcrow">¶</a></p>
-<p id="section-5.3-5">For both of the approaches discussed above, even if the DS is honest, a
-malicious group member can still cause the group to become stuck. With the first
-approach, a malicious member can vote against valid Commits. With the second
-approach, a malicious member that's capable of sending invalid Commits is also
-capable of corrupting the state that other users need to perform an external
-join, thereby preventing successful external joins.<a href="#section-5.3-5" class="pilcrow">¶</a></p>
-<p id="section-5.3-6">An alternative approach is for the Delivery Service take no stance on which
-Commit is "correct" for an epoch. The DS can enable clients to choose between
-Commits, for example by providing Commits in the order received when there are
-multiple, and allow clients to reject any Commits that violate their view of the
-group's policies. As such, all honest and correctly-implemented clients will
-arrive at the same "first valid Commit" and choose to process it. Malicious or
-buggy clients that process a different Commit will end up in a forked view of
-the group. While allowing a group's state to fork has fewer security
-implications than the above approaches, it can complicate some operational
-aspects of MLS for the DS, such as how to support external joins.<a href="#section-5.3-6" class="pilcrow">¶</a></p>
-<p id="section-5.3-7">The only instance where not all honest group members will agree on the validity of a
-Commit, is when the Commit is invalid in the form described in <span><a href="https://rfc-editor.org/rfc/rfc9420#section-16.12" class="relref">Section 16.12</a> of [<a href="#RFC9420" class="cite xref">RFC9420</a>]</span>. This creates a subset of members that are unable to process the
-Commit. When a user discovers that they're in such a subset, they can request a
-re-encryption of <code>path_secret[n]</code> from another honest member. In the interest of
-efficiency, the DS can collect these re-encryptions proactively. Alternatively,
-if no other honest users have processed the Commit, the user can request that
-the DS suppress it (potentially after cryptographically proving that it's
-malformed).<a href="#section-5.3-7" class="pilcrow">¶</a></p>
-</section>
-</div>
-<div id="access-control">
-<section id="section-5.4">
-        <h3 id="name-access-control">
-<a href="#section-5.4" class="section-number selfRef">5.4. </a><a href="#name-access-control" class="section-name selfRef">Access Control</a>
-        </h3>
-<p id="section-5.4-1">Service providers often wish to restrict users who are not a member of a group
-from sending messages to the group or receiving the group's messages. This can
-be complicated by the discussion in <a href="#invalid-commits" class="auto internal xref">Section 5.3</a> and by the use of
-encrypted handshake messages. In particular, when handshake messages are
-encrypted, changes to group membership are intentionally encrypted and hidden
-from the service provider.<a href="#section-5.4-1" class="pilcrow">¶</a></p>
-<p id="section-5.4-2">When a group's handshake messages are unencrypted, the service provider can
-build the group's ratchet tree (keeping in mind the potential for forks, as
-discussed in <a href="#invalid-commits" class="auto internal xref">Section 5.3</a>). The group's ratchet tree can then be used to
-prevent non-members from accessing the group.<a href="#section-5.4-2" class="pilcrow">¶</a></p>
-<p id="section-5.4-3">However, when a group's handshake messages are encrypted, direct inspection of
-the ratchet tree is no longer an option. An alternative solution would be for
-the service provider to restrict access to individual epochs of the group with a
-bearer token, which is computed as the output of <code>MLS-Exporter</code> in the epoch.
-Only users who are a member of the group in that specific epoch would be able to
-compute the exported secret, and therefore only they would be able to access the
-group's messages.<a href="#section-5.4-3" class="pilcrow">¶</a></p>
+<p id="section-5.3-3">Such “desynchronization” problems can arise even when the Delivery Service takes
+no stance on which Commit is "correct" for an epoch. The DS can enable clients
+to choose between Commits, for example by providing Commits in the order
+received when there are multiple, and allow clients to reject any Commits that
+violate their view of the group's policies. As such, all honest and
+correctly-implemented clients will arrive at the same "first valid Commit" and
+choose to process it. Malicious or buggy clients that process a different Commit
+will end up in a forked view of the group.<a href="#section-5.3-3" class="pilcrow">¶</a></p>
+<p id="section-5.3-4">When these desynchronizations happen, the application may choose to take action
+to restore the functionality of the group.  These actions themselves can have
+security implications.  For example, a client developer might have a client
+automatically rejoin a group, using an external join, when it processes an
+invalid Commit.  In this operation, however, the client trusts that the
+GroupInfo provided by the DS faithfully represents the state of the group, and
+not, say, an earlier state containing a compromised leaf node. Even worse, the
+DS may be able to trigger this condition by deliberately sending the victim an
+invalid Commit. In certain scenarios, this trust can enable the DS or a
+malicious insider to undermine the post-compromise security guarantees provided
+by MLS.<a href="#section-5.3-4" class="pilcrow">¶</a></p>
+<p id="section-5.3-5">Actions to recover from desynchronization can also have availability and DoS
+implications.  For example, if a recovery mechanism relies on external joins, a
+malicious member that deliberately posts an invalid Commit could also post a
+corrupted GroupInfo object in order to prevent victims from rejoining the group.
+Thus, careful analysis of security implications should be made for any system
+for recovering from desynchronization.<a href="#section-5.3-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -2422,10 +2373,10 @@ messages without waiting for another user's reply.<a href="#section-6.3-1" class
 delivering messages asynchronously and reliably.<a href="#section-6.3-2" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="access-control-1">
+<div id="access-control">
 <section id="section-6.4">
-        <h3 id="name-access-control-2">
-<a href="#section-6.4" class="section-number selfRef">6.4. </a><a href="#name-access-control-2" class="section-name selfRef">Access Control</a>
+        <h3 id="name-access-control">
+<a href="#section-6.4" class="section-number selfRef">6.4. </a><a href="#name-access-control" class="section-name selfRef">Access Control</a>
         </h3>
 <p id="section-6.4-1">Because all clients within a group (members) have access to the shared
 cryptographic material, MLS protocol allows each member of the messaging group
@@ -3763,6 +3714,7 @@ guarantees provided by MLS.<a href="#section-8.6-2" class="pilcrow">¶</a></p>
 <p id="section-9-1">This document makes no requests of IANA.<a href="#section-9-1" class="pilcrow">¶</a></p>
 </section>
 </div>
+<div id="sec-combined-references">
 <section id="section-10">
       <h2 id="name-references">
 <a href="#section-10" class="section-number selfRef">10. </a><a href="#name-references" class="section-name selfRef">References</a>
@@ -3890,6 +3842,7 @@ guarantees provided by MLS.<a href="#section-8.6-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
+</div>
 <div id="contributors">
 <section id="appendix-A">
       <h2 id="name-contributors">
