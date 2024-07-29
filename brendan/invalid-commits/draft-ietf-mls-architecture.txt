@@ -5,14 +5,14 @@
 Network Working Group                                      B. Beurdouche
 Internet-Draft                                           Inria & Mozilla
 Intended status: Informational                               E. Rescorla
-Expires: 23 January 2025                                         Mozilla
+Expires: 30 January 2025                                         Mozilla
                                                                 E. Omara
                                                                         
                                                                S. Inguva
                                                                         
                                                                 A. Duric
                                                                     Wire
-                                                            22 July 2024
+                                                            29 July 2024
 
 
             The Messaging Layer Security (MLS) Architecture
@@ -68,7 +68,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 23 January 2025.
+   This Internet-Draft will expire on 30 January 2025.
 
 Copyright Notice
 
@@ -692,8 +692,8 @@ Welcome (Charlie) ----------------------------------------->     | Step 4
    all clients see messages in the same order.  This would allow clients
    to only apply the first valid Commit for an epoch and ignore
    subsequent ones.  Clients that send a Commit would then wait to apply
-   it until it's broadcast back to them by the Delivery Service,
-   assuming they don't receive another Commit first.
+   it until it is broadcast back to them by the Delivery Service,
+   assuming they do not receive another Commit first.
 
    Alternatively, the Delivery Service can rely on the epoch and
    content_type fields of an MLSMessage to provide an order only to
@@ -792,12 +792,12 @@ Welcome (Charlie) ----------------------------------------->     | Step 4
    Such “desynchronization” problems can arise even when the Delivery
    Service takes no stance on which Commit is "correct" for an epoch.
    The DS can enable clients to choose between Commits, for example by
-   providing Commits in the order received when there are multiple, and
-   allow clients to reject any Commits that violate their view of the
-   group's policies.  As such, all honest and correctly-implemented
-   clients will arrive at the same "first valid Commit" and choose to
-   process it.  Malicious or buggy clients that process a different
-   Commit will end up in a forked view of the group.
+   providing Commits in the order received and allow clients to reject
+   any Commits that violate their view of the group's policies.  As
+   such, all honest and correctly-implemented clients will arrive at the
+   same "first valid Commit" and choose to process it.  Malicious or
+   buggy clients that process a different Commit will end up in a forked
+   view of the group.
 
    When these desynchronizations happen, the application may choose to
    take action to restore the functionality of the group.  These actions
@@ -806,8 +806,8 @@ Welcome (Charlie) ----------------------------------------->     | Step 4
    external join, when it processes an invalid Commit.  In this
    operation, however, the client trusts that the GroupInfo provided by
    the DS faithfully represents the state of the group, and not, say, an
-   earlier state containing a compromised leaf node.  Even worse, the DS
-   may be able to trigger this condition by deliberately sending the
+   earlier state containing a compromised leaf node.  In addition, the
+   DS may be able to trigger this condition by deliberately sending the
    victim an invalid Commit.  In certain scenarios, this trust can
    enable the DS or a malicious insider to undermine the post-compromise
    security guarantees provided by MLS.
